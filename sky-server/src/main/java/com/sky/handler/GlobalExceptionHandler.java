@@ -29,16 +29,18 @@ import java.sql.SQLIntegrityConstraintViolationException;
     @ExceptionHandler
     public Result exceptionHandler(SQLIntegrityConstraintViolationException ex){
         //Duplicate entry 'kunkun' for key 'employee.idx_username'
-        String message=ex.getMessage();
-        if(message.contains("Duplicate entry")){
-            String[]split = message.split(" ");
-            String username = split[2];
-            String msg = username + MessageConstant.ALREADY_EXISTS;
-            return Result.error(msg);
+        log.error("SQLIntegrityConstraintViolationException occurred", ex);
+
+        String message = ex.getMessage();
+        if (message != null && message.contains("Duplicate entry")) {
+            String[] split = message.split(" ");
+            if (split.length > 2) {
+                String username = split[2];
+                String msg = username + " " + MessageConstant.ALREADY_EXISTS;
+                return Result.error(msg);
+            }
         }
-        else{
-            return Result.error(MessageConstant.UNKNOWN_ERROR);
-        }
+        return Result.error(MessageConstant.UNKNOWN_ERROR);
 
 
     }
